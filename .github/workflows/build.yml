@@ -1,0 +1,36 @@
+
+name: Build Java JAR
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download source code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Compile Java files
+        run: |
+          mkdir -p out
+          javac -d out $(find src -name "*.java")
+
+      - name: Package JAR
+        run: |
+          jar --create --file Verity.jar \
+            --main-class Main -C out .
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: Verity-JAR
+          path: Verity.jar
